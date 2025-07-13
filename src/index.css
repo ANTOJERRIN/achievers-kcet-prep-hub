@@ -2,39 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Achievers Club Design System - KCET Exam Preparation App
+All colors MUST be HSL for semantic token consistency.
+Brand Colors: Red, Green, Black for educational excellence
 */
 
 @layer base {
   :root {
+    /* Brand Colors - Achievers Club */
+    --brand-red: 0 73% 41%;         /* #dc2626 equivalent */
+    --brand-green: 142 71% 45%;     /* #16a34a equivalent */
+    --brand-black: 220 13% 18%;     /* #1f2937 equivalent */
+    
+    /* Academic Color Palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 13% 18%;       /* Using brand black */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 13% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 13% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary = Brand Red for main actions */
+    --primary: 0 73% 41%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary = Light academic blue-gray */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent = Brand Green for success/progress */
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 0 73% 41%;              /* Brand red ring */
+
+    /* Academic Success Gradient */
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%));
+    --gradient-achievement: linear-gradient(135deg, hsl(0 73% 41%), hsl(0 73% 51%));
+    --gradient-study: linear-gradient(135deg, hsl(220 13% 18%), hsl(215 25% 27%));
+    
+    /* Study Focus Shadows */
+    --shadow-card: 0 4px 12px hsla(220, 13%, 18%, 0.1);
+    --shadow-focus: 0 8px 24px hsla(0, 73%, 41%, 0.15);
+    --shadow-success: 0 8px 24px hsla(142, 71%, 45%, 0.15);
 
     --radius: 0.5rem;
 

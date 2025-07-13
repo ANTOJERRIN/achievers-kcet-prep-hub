@@ -24,6 +24,14 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				/* Brand Colors for Achievers Club */
+				brand: {
+					red: 'hsl(var(--brand-red))',
+					green: 'hsl(var(--brand-green))',
+					black: 'hsl(var(--brand-black))'
+				},
+				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
