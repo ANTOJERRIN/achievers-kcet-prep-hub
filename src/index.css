@@ -114,6 +114,25 @@ Brand Colors: Red, Green, Black for educational excellence
   }
 }
 
+/* Text Color Utilities */
+@layer utilities {
+  .text-red {
+    @apply text-brand-red;
+  }
+  
+  .text-green {
+    @apply text-brand-green;
+  }
+  
+  .text-blue {
+    color: hsl(217 91% 60%);
+  }
+  
+  .text-blue-dark {
+    color: hsl(217 91% 70%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
