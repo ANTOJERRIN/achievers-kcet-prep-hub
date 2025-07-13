@@ -22,7 +22,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary via-white to-accent/10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -40,7 +40,7 @@ const Index = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <Logo className="mb-6" />
-                <h1 className="text-4xl md:text-5xl font-bold text-brand-black leading-tight">
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
                   Master KCET with
                   <span className="text-brand-red"> Smart </span>
                   <span className="text-brand-green">Time Management</span>
@@ -55,24 +55,24 @@ const Index = () => {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-green rounded-full"></div>
-                  <span className="text-brand-black font-medium">📚 11th & 12th NCERT Complete Coverage</span>
+                  <span className="text-foreground font-medium">📚 11th & 12th NCERT Complete Coverage</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-red rounded-full"></div>
-                  <span className="text-brand-black font-medium">⏱️ Smart Time Management Strategies</span>
+                  <span className="text-foreground font-medium">⏱️ Smart Time Management Strategies</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-green rounded-full"></div>
-                  <span className="text-brand-black font-medium">🎯 Weak Topic Identification & Practice</span>
+                  <span className="text-foreground font-medium">🎯 Weak Topic Identification & Practice</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-red rounded-full"></div>
-                  <span className="text-brand-black font-medium">📊 Accuracy Improvement Tools</span>
+                  <span className="text-foreground font-medium">📊 Accuracy Improvement Tools</span>
                 </div>
               </div>
               
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-brand-green/20">
-                <h3 className="text-lg font-semibold text-brand-black mb-2">🔥 Special Focus Areas</h3>
+              <div className="bg-card/80 backdrop-blur-sm rounded-lg p-6 border border-brand-green/20">
+                <h3 className="text-lg font-semibold text-foreground mb-2">🔥 Special Focus Areas</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="text-sm">
                     <span className="font-medium text-brand-red">Physics:</span>
@@ -83,7 +83,7 @@ const Index = () => {
                     <p className="text-muted-foreground">Organic, Physical Chemistry</p>
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium text-brand-black">Mathematics:</span>
+                    <span className="font-medium text-foreground">Mathematics:</span>
                     <p className="text-muted-foreground">Calculus, Coordinate Geometry</p>
                   </div>
                   <div className="text-sm">
@@ -105,7 +105,7 @@ const Index = () => {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-brand-black mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Why Achievers Club Works
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -118,7 +118,7 @@ const Index = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-brand-red to-brand-red/80 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl text-white">🎯</span>
             </div>
-            <h3 className="text-xl font-semibold text-brand-black">Targeted Learning</h3>
+            <h3 className="text-xl font-semibold text-foreground">Targeted Learning</h3>
             <p className="text-muted-foreground">
               Focus only on your weak topics. No time wasted on concepts you already know.
             </p>
@@ -128,7 +128,7 @@ const Index = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-brand-green to-brand-green/80 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl text-white">⚡</span>
             </div>
-            <h3 className="text-xl font-semibold text-brand-black">Time Optimization</h3>
+            <h3 className="text-xl font-semibold text-foreground">Time Optimization</h3>
             <p className="text-muted-foreground">
               Smart practice schedules that maximize learning in minimum time.
             </p>
@@ -138,7 +138,7 @@ const Index = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-brand-black to-gray-700 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl text-white">📈</span>
             </div>
-            <h3 className="text-xl font-semibold text-brand-black">Accuracy Boost</h3>
+            <h3 className="text-xl font-semibold text-foreground">Accuracy Boost</h3>
             <p className="text-muted-foreground">
               Proven methods to reduce silly mistakes and improve problem-solving speed.
             </p>
