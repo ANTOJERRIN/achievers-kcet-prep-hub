@@ -1,24 +1,26 @@
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Dashboard } from "@/components/Dashboard";
 import { Logo } from "@/components/Logo";
 import heroImage from "@/assets/hero-image.jpg";
-
-interface User {
-  name: string;
-  email: string;
-  phone: string;
-}
+import { Button } from "@/components/ui/button";
+import { getSession, logout, type Student } from "@/lib/prep-api";
 
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const handleRegistrationComplete = (userData: User) => {
-    setUser(userData);
+  const queryClient = useQueryClient();
+  const { data: user, isPending, error, refetch } = useQuery({
+    queryKey: ["session"], queryFn: getSession, retry: false, refetchOnWindowFocus: false,
+  });
+  const handleRegistrationComplete = (student: Student) => {
+    queryClient.setQueryData(["session"], student);
   };
 
   if (user) {
-    return <Dashboard user={user} />;
+    return <Dashboard key={user.email} user={user} onLogout={async () => {
+      await logout();
+      queryClient.removeQueries({ queryKey: ["dashboard"] });
+      queryClient.setQueryData(["session"], null);
+    }} />;
   }
 
   return (
@@ -55,7 +57,7 @@ const Index = () => {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-green rounded-full"></div>
-                  <span className="text-foreground font-medium">📚 11th & 12th NCERT Complete Coverage</span>
+                  <span className="text-foreground font-medium">📚 Class 11 and 12 PCM starter material</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-brand-red rounded-full"></div>
@@ -96,7 +98,13 @@ const Index = () => {
             
             {/* Right Side - Registration Form */}
             <div className="lg:pl-8">
-              <RegistrationForm onRegistrationComplete={handleRegistrationComplete} />
+              {isPending ? <p role="status">Checking your session…</p>
+                : error ? (
+                  <div role="alert" className="space-y-2">
+                    <p>{error.message}</p>
+                    <Button variant="outline" onClick={() => refetch()}>Retry</Button>
+                  </div>
+                ) : <RegistrationForm onRegistrationComplete={handleRegistrationComplete} />}
             </div>
           </div>
         </div>
