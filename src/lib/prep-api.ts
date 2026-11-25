@@ -17,6 +17,15 @@ export interface NoteSummary {
 export interface Note extends NoteSummary {
   body: string;
   topic: string;
+  resources: LearningResource[];
+}
+
+export interface LearningResource {
+  id: number;
+  kind: "reading" | "video";
+  title: string;
+  source: string;
+  url: string;
 }
 
 export interface Topic {
@@ -26,6 +35,7 @@ export interface Topic {
   attempts: number;
   weak: boolean;
   notes: NoteSummary[];
+  resources: LearningResource[];
   quizzes: { id: number; title: string; durationSeconds: number }[];
 }
 

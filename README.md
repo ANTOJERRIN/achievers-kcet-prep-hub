@@ -11,6 +11,7 @@ py -3.12 -m venv .venv
 .venv/Scripts/python.exe -m pip install -r backend/requirements.txt
 .venv/Scripts/python.exe backend/manage.py migrate
 .venv/Scripts/python.exe backend/manage.py seed_kcet
+.venv/Scripts/python.exe backend/manage.py seed_resources
 .venv/Scripts/python.exe backend/manage.py runserver 127.0.0.1:8000
 ```
 
@@ -24,6 +25,8 @@ npm run dev
 Open [the student app](http://localhost:8080). Vite proxies `/api/` to Django. The app uses SQLite locally unless PostgreSQL is configured. The seed command adds six original notes and six short practice sets with 18 questions across the three subjects.
 
 For staff access, run `.venv/Scripts/python.exe backend/manage.py createsuperuser` and sign in to [Django admin](http://127.0.0.1:8000/admin/). Create a subject and topic before adding a note or practice set. Each question has four choices, one correct choice, and an explanation. Use the Published checkbox to release content to students.
+
+Use **Learning resources** in Django admin to attach a reading or video to any topic. For a YouTube video or OpenStax book section, paste the URL and leave the title or source blank to look it up. For other sites, enter the title, source, and HTTPS URL. Publish the resource when ready. Students see it in Notes or Videos and open the original source in a new tab.
 
 ## Student API
 

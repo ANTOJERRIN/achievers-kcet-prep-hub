@@ -1,11 +1,13 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import Client, TestCase
 from django.utils import timezone
 
-from .models import Attempt, Lesson, LessonProgress, Question, Quiz
+from .admin import LearningResourceForm
+from .models import Attempt, LearningResource, Lesson, LessonProgress, Question, Quiz
 
 PASSWORD = "marble-drizzle-ostrich-467"
 
@@ -129,3 +131,55 @@ class PrepApiTests(TestCase):
         self.lesson.published = False
         self.lesson.save()
         self.assertEqual(self.client.get(path).status_code, 404)
+
+    def test_only_published_resources_appear_on_the_matching_topic(self):
+        call_command("seed_resources", verbosity=0)
+        call_command("seed_resources", verbosity=0)
+        self.assertEqual(LearningResource.objects.count(), 12)
+        LearningResource.objects.create(
+            topic=self.lesson.topic, title="Draft reading", source="Example",
+            url="https://example.com/draft", kind="reading",
+        )
+        self.register(self.client)
+        result = self.client.get(f"/api/lessons/{self.lesson.pk}/").json()
+        self.assertEqual({item["kind"] for item in result["resources"]}, {"reading", "video"})
+        self.assertEqual(len(result["resources"]), 2)
+        dashboard = self.client.get("/api/dashboard/").json()
+        topic = next(topic for subject in dashboard["subjects"] for topic in subject["topics"]
+                     if topic["id"] == "thermodynamics")
+        self.assertEqual(topic["resources"], result["resources"])
+
+    @patch("prep.admin.youtube_metadata", return_value=("A thermodynamics tutorial", "Physics Channel"))
+    def test_staff_can_import_youtube_metadata(self, metadata):
+        form = LearningResourceForm(data={
+            "topic": self.lesson.topic_id, "kind": "video", "url": "https://youtu.be/f1OokOgtcqg",
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        metadata.assert_called_once_with("f1OokOgtcqg")
+        resource = form.save()
+        self.assertEqual(resource.title, "A thermodynamics tutorial")
+        self.assertEqual(resource.source, "Physics Channel")
+        self.assertFalse(resource.published)
+
+    @patch("prep.admin.youtube_metadata")
+    def test_other_links_use_manual_metadata(self, metadata):
+        topic = self.lesson.topic_id
+        for url in ("http://example.com/video", "https://example.com/video"):
+            form = LearningResourceForm(data={"topic": topic, "kind": "video", "url": url})
+            self.assertFalse(form.is_valid())
+        form = LearningResourceForm(data={
+            "topic": topic, "kind": "reading", "url": "https://example.com/reading",
+            "title": "Example chapter", "source": "Example",
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        metadata.assert_not_called()
+
+    @patch("prep.admin.openstax_metadata", return_value=("Differentiation Rules", "OpenStax"))
+    def test_staff_can_import_openstax_metadata(self, metadata):
+        form = LearningResourceForm(data={
+            "topic": self.lesson.topic_id, "kind": "reading",
+            "url": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        metadata.assert_called_once_with("/books/calculus-volume-1/pages/3-3-differentiation-rules")
+        self.assertEqual(form.save().source, "OpenStax")

@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from .resource_links import validate_resource_url
+
 
 class Subject(models.Model):
     slug = models.SlugField(unique=True)
@@ -39,6 +41,29 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class LearningResource(models.Model):
+    class Kind(models.TextChoices):
+        READING = "reading", "Reading"
+        VIDEO = "video", "Video"
+
+    topic = models.ForeignKey(Topic, related_name="resources", on_delete=models.PROTECT)
+    kind = models.CharField(max_length=7, choices=Kind.choices)
+    title = models.CharField(max_length=200)
+    source = models.CharField(max_length=120, help_text="Name of the site or the creator.")
+    url = models.URLField(max_length=600, validators=[validate_resource_url])
+    published = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["title", "id"]
+        constraints = [models.UniqueConstraint(fields=["topic", "url"], name="unique_topic_resource_url")]
+
+    def __str__(self):
+        return self.title
+
+    def as_resource(self):
+        return {"id": self.pk, "kind": self.kind, "title": self.title, "source": self.source, "url": self.url}
 
 
 class Quiz(models.Model):

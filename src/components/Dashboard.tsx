@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Atom, BookOpen, Calculator, Download, FileText, FlaskConical, LogOut, Share2, Target, Timer, TrendingUp,
+  Atom, BookOpen, Calculator, Download, FileText, FlaskConical, LogOut, Share2, Target, Timer, TrendingUp, Video,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   type Attempt, type Note, type Student, type Topic,
 } from "@/lib/prep-api";
 import { Logo } from "./Logo";
+import { OnlineResources } from "./OnlineResources";
 import { PracticeAttempt } from "./PracticeAttempt";
 
 const styles = {
@@ -20,8 +21,10 @@ const styles = {
   mathematics: { icon: Calculator, accent: "from-purple-500 to-purple-600", border: "border-purple-200" },
 };
 
+type ResourcePanel = "practice" | "notes" | "videos";
+
 type Panel =
-  | { kind: "practice" | "notes"; title: string; topics: Topic[] }
+  | { kind: ResourcePanel; title: string; topics: Topic[] }
   | { kind: "note"; note: Note }
   | { kind: "attempt"; attempt: Attempt };
 
@@ -51,7 +54,7 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
     }
   };
 
-  const showResources = (kind: "practice" | "notes", title: string, topics: Topic[]) => {
+  const showResources = (kind: ResourcePanel, title: string, topics: Topic[]) => {
     setError("");
     setPanel({ kind, title, topics });
   };
@@ -137,7 +140,7 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
                             {weakTopics.map((topic) => <Badge key={topic.id} variant="secondary">{topic.title} · {topic.accuracy}%</Badge>)}
                           </div>
                         )}
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <Button size="sm" className="flex-1 bg-brand-red hover:bg-brand-red/90" disabled={busy}
                             onClick={() => showResources("practice", subject.name, subject.topics)}>
                             <FileText className="w-4 h-4 mr-1" />Practice
@@ -145,6 +148,10 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
                           <Button size="sm" variant="outline" className="flex-1" disabled={busy}
                             onClick={() => showResources("notes", subject.name, subject.topics)}>
                             <BookOpen className="w-4 h-4 mr-1" />Notes
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1" disabled={busy}
+                            onClick={() => showResources("videos", subject.name, subject.topics)}>
+                            <Video className="w-4 h-4 mr-1" />Videos
                           </Button>
                         </div>
                       </CardContent>
@@ -199,17 +206,18 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
               <DialogDescription>
                 {panel.kind === "attempt" ? "Timed practice results and answers"
                   : panel.kind === "note" ? panel.note.topic
-                  : panel.kind === "notes" ? "Concept notes" : "Timed practice sets"}
+                  : panel.kind === "notes" ? "Concept notes and online readings"
+                  : panel.kind === "videos" ? "Video tutorials by topic" : "Timed practice sets"}
               </DialogDescription>
             </DialogHeader>
             {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             {"topics" in panel && (
               <div className="space-y-4">
-                {!panel.topics.some((topic) => panel.kind === "notes" ? topic.notes.length : topic.quizzes.length) &&
+                {(!panel.topics.length || (panel.kind === "practice" && !panel.topics.some((topic) => topic.quizzes.length))) &&
                   <p>No material has been published here yet.</p>}
                 {panel.topics.map((topic) => {
-                  const resources = panel.kind === "notes" ? topic.notes : topic.quizzes;
-                  if (!resources.length) return null;
+                  const resources = panel.kind === "notes" ? topic.notes : panel.kind === "practice" ? topic.quizzes : [];
+                  if (panel.kind === "practice" && !resources.length) return null;
                   return (
                     <section key={topic.id} className="space-y-2">
                       <h3 className="font-semibold">{topic.title}</h3>
@@ -225,6 +233,10 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
                           })}>{panel.kind === "notes" ? "Read" : "Start or resume"}</Button>
                         </div>
                       ))}
+                      {panel.kind !== "practice" && (
+                        <OnlineResources topic={topic.title} resources={topic.resources}
+                          kind={panel.kind === "videos" ? "video" : "reading"} />
+                      )}
                     </section>
                   );
                 })}
@@ -237,6 +249,10 @@ export function Dashboard({ user, onLogout }: { user: Student; onLogout: () => P
                   setPanel({ kind: "note", note: await completeNote(panel.note.id) });
                   refreshDashboard();
                 })}>{panel.note.completed ? "Completed" : "Mark as read"}</Button>
+                <section aria-label="Related online resources" className="space-y-2 border-t pt-4">
+                  <h3 className="font-semibold">Related online resources</h3>
+                  <OnlineResources topic={panel.note.topic} resources={panel.note.resources} />
+                </section>
               </>
             )}
             {panel.kind === "attempt" && <PracticeAttempt key={panel.attempt.id} initial={panel.attempt} onGraded={refreshDashboard} />}

@@ -143,6 +143,7 @@ def lesson_detail(request, lesson_id):
     return JsonResponse({
         "id": lesson.pk, "title": lesson.title, "body": lesson.body, "topic": lesson.topic.title,
         "completed": completion.exists(),
+        "resources": [resource.as_resource() for resource in lesson.topic.resources.filter(published=True)],
     })
 
 

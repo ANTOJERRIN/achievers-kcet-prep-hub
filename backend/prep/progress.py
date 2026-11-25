@@ -1,7 +1,7 @@
 from django.db.models import Count, Sum
 
 from .attempts import expire_open_attempts, summary
-from .models import Attempt, Lesson, LessonProgress, Quiz, Subject
+from .models import Attempt, LearningResource, Lesson, LessonProgress, Quiz, Subject
 
 
 def dashboard(student):
@@ -19,6 +19,9 @@ def dashboard(student):
     quizzes = Quiz.objects.filter(published=True, questions__isnull=False).distinct().order_by("title", "id")
     notes_by_topic = {}
     quizzes_by_topic = {}
+    resources_by_topic = {}
+    for resource in LearningResource.objects.filter(published=True):
+        resources_by_topic.setdefault(resource.topic_id, []).append(resource.as_resource())
     for note in notes:
         notes_by_topic.setdefault(note.topic_id, []).append({
             "id": note.pk, "title": note.title, "completed": note.pk in completed,
@@ -39,6 +42,7 @@ def dashboard(student):
             topics.append({
                 "id": topic.slug, "title": topic.title,
                 "notes": notes_by_topic.get(topic.pk, []), "quizzes": quizzes_by_topic.get(topic.pk, []),
+                "resources": resources_by_topic.get(topic.pk, []),
                 "accuracy": accuracy, "attempts": progress["attempts"] if progress else 0,
                 "weak": weak,
             })
