@@ -2,141 +2,94 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { User, Mail, Phone, GraduationCap } from "lucide-react";
+import { login, register, type Student } from "@/lib/prep-api";
 
-const registrationSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15, "Phone number too long"),
+const schema = z.object({
+  name: z.string().trim().max(120),
+  email: z.string().trim().email("Please enter a valid email address").max(150),
+  password: z.string().min(8, "Use at least 8 characters").max(128),
 });
 
-type RegistrationData = z.infer<typeof registrationSchema>;
+type Credentials = z.infer<typeof schema>;
 
-interface RegistrationFormProps {
-  onRegistrationComplete: (data: RegistrationData) => void;
-}
-
-export const RegistrationForm = ({ onRegistrationComplete }: RegistrationFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<RegistrationData>({
-    resolver: zodResolver(registrationSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-    },
+export const RegistrationForm = ({ onRegistrationComplete }: { onRegistrationComplete: (user: Student) => void }) => {
+  const [returning, setReturning] = useState(false);
+  const [error, setError] = useState("");
+  const form = useForm<Credentials>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", email: "", password: "" },
   });
+  const submitting = form.formState.isSubmitting;
 
-  const onSubmit = async (data: RegistrationData) => {
-    setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    onRegistrationComplete(data);
+  const onSubmit = async (data: Credentials) => {
+    setError("");
+    if (!returning && data.name.length < 2) {
+      form.setError("name", { message: "Enter at least 2 characters" });
+      return;
+    }
+    try {
+      const { name, email, password } = data;
+      const user = returning ? await login({ email, password }) : await register({ name, email, password });
+      if (user) onRegistrationComplete(user);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Please try again.");
+    }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg border-0" style={{ boxShadow: 'var(--shadow-card)' }}>
+    <Card className="w-full max-w-md mx-auto shadow-lg border-0" style={{ boxShadow: "var(--shadow-card)" }}>
       <CardHeader className="text-center space-y-2">
         <div className="mx-auto w-16 h-16 bg-gradient-to-br from-brand-red to-brand-green rounded-full flex items-center justify-center mb-4">
           <GraduationCap className="w-8 h-8 text-white" />
         </div>
         <CardTitle className="text-2xl font-bold text-brand-black">
-          Join Achievers Club
+          {returning ? "Sign in to Achievers Club" : "Join Achievers Club"}
         </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Your journey to KCET success starts here
-        </CardDescription>
+        <CardDescription>{returning ? "Pick up where you left off" : "Start your KCET preparation"}</CardDescription>
       </CardHeader>
-      
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
+            {!returning && (
+              <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-brand-black font-medium">Full Name</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="Enter your full name" 
-                        className="pl-10 border-2 focus:border-brand-red transition-colors"
-                        {...field} 
-                      />
-                    </div>
-                  </FormControl>
+                  <FormLabel>Full name</FormLabel>
+                  <FormControl><Input autoComplete="name" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-brand-black font-medium">Email Address</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="email"
-                        placeholder="your.email@example.com" 
-                        className="pl-10 border-2 focus:border-brand-red transition-colors"
-                        {...field} 
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-brand-black font-medium">Phone Number</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="tel"
-                        placeholder="Enter your phone number" 
-                        className="pl-10 border-2 focus:border-brand-red transition-colors"
-                        {...field} 
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-semibold py-6 text-lg transition-all duration-200 hover:shadow-lg"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Creating Account..." : "Start Learning Journey"}
+              )} />
+            )}
+            <FormField control={form.control} name="email" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email address</FormLabel>
+                <FormControl><Input type="email" autoComplete="email" {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            <FormField control={form.control} name="password" render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl><Input type="password" autoComplete={returning ? "current-password" : "new-password"} {...field} /></FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+            <Button type="submit" className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-semibold py-6" disabled={submitting}>
+              {submitting ? "Please wait…" : returning ? "Sign in" : "Create account"}
             </Button>
           </form>
         </Form>
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Ready to ace KCET? Let's master those weak topics together! 🎯
-          </p>
-        </div>
+        <Button
+          type="button" variant="link" className="mt-4 w-full" disabled={submitting}
+          onClick={() => { setReturning(!returning); setError(""); form.clearErrors(); }}
+        >
+          {returning ? "Create a student account" : "Already registered? Sign in"}
+        </Button>
       </CardContent>
     </Card>
   );
